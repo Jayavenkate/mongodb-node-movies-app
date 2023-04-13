@@ -2,14 +2,17 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import express from "express"; // "type": "module"
 import { MongoClient } from "mongodb";
+import moviesRouter from "./router/movies.js";
+
 const app = express();
+
 
 // console.log(process.env.MONGO_URL);
 const PORT = process.env.PORT;
 // const MONGO_URL = "mongodb://127.0.0.1";
 const MONGO_URL = process.env.MONGO_URL;
 
-const client = new MongoClient(MONGO_URL); // dial
+export const client = new MongoClient(MONGO_URL); // dial
 // Top level await
 await client.connect(); // call
 console.log("Mongo is connected !!!  ");
@@ -128,70 +131,7 @@ app.use(express.json());
 app.get("/", function (request, response) {
   response.send("🙋‍♂️, 🌏 B42WD2");
 });
-//get all movies
-// http://localhost:4000/movies
+app.use("/movies",moviesRouter);
 
-app.get("/movies", async function (request, response) {
-  const movies = await client
-    .db("b42wd2")
-    .collection("movies")
-    .find({})
-    .toArray();
-  console.log(movies);
-  response.send(movies);
-});
 
-//get movie by id
-
-app.get("/movies/:id", async function (request, response) {
-  const { id } = request.params;
-  // console.log(id);
-  const movies = await client
-    .db("b42wd2")
-    .collection("movies")
-    .findOne({ id: id });
-  // console.log(movie);
-  movies
-    ? response.send(movies)
-    : response.status(404).send({ message: "Movie not found" });
-});
-//post method
-app.post("/movies",  async function (request, response) {
-  const data = request.body;
-  // console.log(data);
-  const result = await client
-    .db("b42wd2")
-    .collection("movies")
-    .insertMany(data);
-  response.send(result);
-});
-
-//delete  by id
-app.delete("/movies/:id", async function (request, response) {
-  const { id } = request.params;
-  // console.log(id);
-  const movies = await client
-    .db("b42wd2")
-    .collection("movies")
-    .deleteOne({ id: id });
-  console.log(movies);
-  movies.deletedCount >= 1
-    ? response.send({ message: "Movie deleted successfully" })
-    : response.status(404).send({ message: "Movie not found" });
-});
-//update by id
-app.put("/movies/:id",  async function (request, response) {
-  const { id } = request.params;
-  const data = request.body;
-  console.log(data);
-  console.log(id);
-  const movies = await client
-    .db("b42wd2")
-    .collection("movies")
-    .updateOne({ id: id },{$set:data});
-  // console.log(movie);
-  movies
-    ? response.send(movies)
-    : response.status(404).send({ message: "Movie not found" });
-});
 app.listen(PORT, () => console.log(`The server started in: ${PORT} ✨✨`));
