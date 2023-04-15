@@ -3,7 +3,7 @@ dotenv.config();
 import express from "express"; // "type": "module"
 import { MongoClient } from "mongodb";
 import moviesRouter from "./router/movies.router.js";
-
+import cors from "cors";
 const app = express();
 
 
@@ -16,6 +16,7 @@ export const client = new MongoClient(MONGO_URL); // dial
 // Top level await
 await client.connect(); // call
 console.log("Mongo is connected !!!  ");
+app.use(cors());
 app.use(express.json());
 // const movies = [
 //   {
